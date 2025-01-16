@@ -1,28 +1,32 @@
 import React from "react";
-import { useGetRepositoriesQuery } from "../redux/Api/githubApi";
+import { GitHubRepo, useGetRepositoriesQuery } from "../redux/Api/githubApi";
 import { useSelector, useDispatch } from "react-redux";
 import Item from "../components/Item";
+import Skeleton_ from "../components/Skeleton_";
 import { RootState } from "../redux/store";
 import { setItems } from "../redux/Slices/editSlice";
 
 const List: React.FC = () => {
-  const { data, error, isLoading } = useGetRepositoriesQuery();
   const dispatch = useDispatch();
+  const { data, error, isLoading } = useGetRepositoriesQuery();
+  const items_: GitHubRepo[] = useSelector(
+    (state: RootState) => state.editSlice.items
+  );
+  React.useEffect(() => {
+    if (data?.items) {
+      dispatch(setItems(data?.items));
+    }
+  }, [data]);
 
-  if (isLoading) return <p>Loading...(skeleton)</p>;
   if (error) return <p>Error fetching repositories</p>;
-  if (data) {
-    dispatch(setItems(data?.items));
-  }
-  const items_ = useSelector((state: RootState) => state.editSlice.items);
   console.log(items_);
 
   return (
-    <div>
-      {items_.map((repo) => (
-        <Item key={repo.id} {...repo} />
-      ))}
-    </div>
+    <>
+      {isLoading && [...new Array(6)].map((_, i) => <Skeleton_ key={i} />)}
+      {items_.length > 0 &&
+        items_.map((repo) => <Item key={repo.id} {...repo} />)}
+    </>
   );
 };
 

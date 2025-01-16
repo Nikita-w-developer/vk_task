@@ -1,30 +1,65 @@
-import React from "react";
-import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Collapse from "@mui/material/Collapse";
-import { GitHubRepo, OwnerType } from "../../redux/Api/githubApi";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { useState } from "react";
 import {
   Avatar,
   createTheme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Button,
+  List,
   ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  Collapse,
   ThemeProvider,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateIcon from "@mui/icons-material/Create";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
+import { deleteItem, updateItem } from "../../redux/Slices/editSlice";
+import { GitHubRepo } from "../../redux/Api/githubApi";
 
 const Item = (props: GitHubRepo) => {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editedFullName, setEditedFullName] = useState(props.full_name);
+  const [editedDescription, setEditedDescription] = useState(
+    props.description || ""
+  );
+
+  const { id, name, full_name, description, html_url, owner } = props;
+  const dispatch = useDispatch();
+
   const handleClick = () => {
     setOpen(!open);
   };
-  const { id, name, full_name, description, html_url, owner } = props;
-  const dispatch = useDispatch();
-  const handleDelete = () => {};
+
+  const handleDelete = () => {
+    dispatch(deleteItem(props));
+  };
+
+  const handleEditOpen = () => {
+    setEditOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditOpen(false);
+  };
+
+  const handleSave = () => {
+    dispatch(
+      updateItem({
+        id,
+        full_name: editedFullName,
+        description: editedDescription,
+      })
+    );
+    setEditOpen(false);
+  };
 
   return (
     <ThemeProvider
@@ -48,11 +83,15 @@ const Item = (props: GitHubRepo) => {
         component="nav"
         aria-labelledby="nested-list-subheader"
       >
-        <ListItemButton onClick={handleClick}>
+        <ListItemButton>
           <ListItemText primary={full_name} />
-          <CreateIcon sx={{ mr: 3 }}></CreateIcon>
-          <DeleteIcon sx={{ mr: 3 }}></DeleteIcon>
-          {open ? <ExpandLess /> : <ExpandMore />}
+          <CreateIcon onClick={handleEditOpen} sx={{ mr: 3 }} />
+          <DeleteIcon onClick={handleDelete} sx={{ mr: 3 }} />
+          {open ? (
+            <ExpandLess onClick={handleClick} />
+          ) : (
+            <ExpandMore onClick={handleClick} />
+          )}
         </ListItemButton>
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
@@ -63,21 +102,47 @@ const Item = (props: GitHubRepo) => {
               <ListItemText
                 primary={owner.login}
                 secondary={
-                  <React.Fragment>
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      sx={{ color: "text.primary", display: "inline" }}
-                    >
-                      {description}
-                    </Typography>
-                  </React.Fragment>
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    sx={{ color: "text.primary", display: "inline" }}
+                  >
+                    {description}
+                  </Typography>
                 }
               />
             </ListItemButton>
           </List>
         </Collapse>
       </List>
+
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>Edit Repository</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Full Name"
+            fullWidth
+            value={editedFullName}
+            onChange={(e) => setEditedFullName(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            value={editedDescription}
+            onChange={(e) => setEditedDescription(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 };
