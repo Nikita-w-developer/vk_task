@@ -6,7 +6,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import { GitHubRepo, OwnerType } from "../../redux/Api/githubApi";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { RootState } from "@reduxjs/toolkit/query";
 import {
   Avatar,
   createTheme,
@@ -16,14 +15,16 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateIcon from "@mui/icons-material/Create";
+import { useDispatch } from "react-redux";
 
 const Item = (props: GitHubRepo) => {
   const [open, setOpen] = React.useState(true);
-  const { id, name, full_name, description, html_url, owner } = props;
-
   const handleClick = () => {
     setOpen(!open);
   };
+  const { id, name, full_name, description, html_url, owner } = props;
+  const dispatch = useDispatch();
+  const handleDelete = () => {};
 
   return (
     <ThemeProvider

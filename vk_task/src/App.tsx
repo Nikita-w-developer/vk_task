@@ -1,12 +1,12 @@
 import "./App.css";
 import List from "./pages/List";
 
-function App() {
+const App: React.FC = () => {
   return (
     <>
       <List />
     </>
   );
-}
+};
 
 export default App;
