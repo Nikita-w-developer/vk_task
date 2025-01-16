@@ -31,7 +31,7 @@ const Item = (props: GitHubRepo) => {
     props.description || ""
   );
 
-  const { id, name, full_name, description, html_url, owner } = props;
+  const { id, full_name, description, owner } = props;
   const dispatch = useDispatch();
 
   const handleClick = () => {
